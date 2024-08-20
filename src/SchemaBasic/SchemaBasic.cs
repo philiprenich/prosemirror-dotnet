@@ -1,6 +1,8 @@
+using System.Text.Json.Nodes;
 using StepWise.Prose.Collections;
 using StepWise.Prose.Model;
 using StepWise.Prose.SchemaList;
+using StepWise.ProseMirror.Model;
 
 
 namespace StepWise.Prose.SchemaBasic;
@@ -23,7 +25,10 @@ public static class BasicSchema {
             Content = "inline*",
             Group = "block",
             // ParseDOM = [ new() {tag = "p"}],
-            // ToDOM()  new() { return pDOM }
+            ToDom = (Node node) => new DomOutputSpec([
+                new () { TagName = "p" },
+                new ArraySpec() { Attributes = JsonValue.Create(0) }
+            ])
         },
 
         // A blockquote (`<blockquote>`) wrapping one or more blocks.

@@ -7,6 +7,7 @@ using Json.More;
 using OneOf;
 
 using StepWise.Prose.Collections;
+using StepWise.ProseMirror.Model;
 
 
 namespace StepWise.Prose.Model;
@@ -454,6 +455,20 @@ public class NodeSpec {
     /// backspacing or lifting, won't cross. An example of a node that
     /// should probably have this enabled is a table cell.</summary>
     public bool? Isolating { get; init; }
+    
+    /// Defines the default way a node of this type should be serialized
+    /// to DOM/HTML (as used by
+    /// [`DOMSerializer.fromSchema`](#model.DOMSerializer^fromSchema)).
+    /// Should return a DOM node or an [array
+    /// structure](#model.DOMOutputSpec) that describes one, with an
+    /// optional number zero (“hole”) in it to indicate where the node's
+    /// content should be inserted.
+    ///
+    /// For text nodes, the default is to create a text DOM node. Though
+    /// it is possible to create a serializer where text is rendered
+    /// differently, this is not supported inside the editor, so you
+    /// shouldn't override that in your text node spec.
+    public Func<Node, DomOutputSpec>? ToDom {get; init; }
 
     /// <summary>Defines the default way a node of this type should be serialized
     /// to a string representation for debugging (e.g. in error messages).</summary>
@@ -497,6 +512,12 @@ public class MarkSpec {
     /// <summary>Determines whether marks of this type can span multiple adjacent
     /// nodes when serialized to DOM/HTML. Defaults to true.</summary>
     public bool? Spanning { get; init; }
+    
+    /// Defines the default way marks of this type should be serialized
+    /// to DOM/HTML. When the resulting spec contains a hole, that is
+    /// where the marked content is placed. Otherwise, it is appended to
+    /// the top node.
+    public Func<Mark, bool, DomOutputSpec>? ToDom { get; init; }
 }
 
 /// <summary>Used to <see cref="NodeSpec.Attrs">define</see> attributes on nodes or
