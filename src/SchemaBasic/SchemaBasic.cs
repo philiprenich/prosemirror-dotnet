@@ -26,8 +26,8 @@ public static class BasicSchema {
             Group = "block",
             // ParseDOM = [ new() {tag = "p"}],
             ToDom = (Node node) => new DomOutputSpec([
-                new () { TagName = "p" },
-                new ArraySpec() { Attributes = JsonValue.Create(0) }
+                new ("p"),
+                new ArraySpec(JsonValue.Create(0))
             ])
         },
 
@@ -37,14 +37,17 @@ public static class BasicSchema {
             Group = "block",
             Defining = true,
             // ParseDOM = [ new() {tag = "blockquote"}],
-            // ToDOM()  new() { return blockquoteDOM }
+            ToDom = (Node node) => new DomOutputSpec([
+                new("blockquote"),
+                new ArraySpec(JsonValue.Create(0))
+            ])
         },
 
         // A horizontal rule (`<hr>`).
         ["horizontal_rule"] =  new() {
             Group = "block",
             // ParseDOM = [ new() {tag = "hr"}],
-            // toDOM()  new() { return hrDOM }
+            ToDom = (Node node) => new DomOutputSpec("hr")
         },
 
         // A heading textblock, with a `level` attribute that
@@ -62,6 +65,11 @@ public static class BasicSchema {
             //                       new() {tag = "h5", attrs =  new() {level = 5}},
             //                       new() {tag = "h6", attrs =  new() {level = 6}}],
             // toDOM(node)  new() { return ["h" + node.attrs.level, 0] }
+            
+            ToDom = (Node node) => new DomOutputSpec([
+                new( "h" + node.Attrs.GetValueOrDefault("level") ),
+                new ArraySpec( JsonValue.Create(0) )
+            ])
         },
 
         // A code listing. Disallows marks or non-text inline
@@ -74,7 +82,13 @@ public static class BasicSchema {
             Code = true,
             Defining = true,
             // ParseDOM = [ new() {tag = "pre", preserveWhitespace = "full"}],
-            // toDOM()  new() { return preDOM }
+            ToDom = (Node node) => new DomOutputSpec([
+                new( "pre" ),
+                new ArraySpec( new DomOutputSpec([
+                    new("code"),
+                    new ArraySpec( JsonValue.Create(0) )])
+                )
+            ])
         },
 
         // The text node.
@@ -102,6 +116,10 @@ public static class BasicSchema {
             //     }
             // }}],
             // toDOM(node)  new() { let  new() {src, alt, title} = node.attrs; return ["img",  new() {src, alt, title}] }
+            ToDom = (Node node) => new DomOutputSpec([
+                new ("img"),
+                new ArraySpec(new JsonObject(node.Attrs.Where(x => new List<string>() {"src", "alt", "title"}.Contains(x.Key)))),
+            ])
         },
 
         // A hard line break, represented in the DOM as `<br>`.
@@ -110,7 +128,7 @@ public static class BasicSchema {
             Group = "inline",
             Selectable = false,
             // ParseDOM = [ new() {tag = "br"}],
-            // toDOM()  new() { return brDOM }
+            ToDom = (Node node) => new DomOutputSpec("br")
         }
     };
 
@@ -131,6 +149,11 @@ public static class BasicSchema {
             //     return new() {href = dom.getAttribute("href"), title = dom.getAttribute("title")}
             // }}],
             // toDOM(node) new() { let new() {href, title} = node.attrs; return ["a", new() {href, title}, 0] }
+            ToDom = (mark, inline) => new DomOutputSpec([
+                new ("a"),
+                new ArraySpec(new JsonObject(mark.Attrs.Where(x => new List<string>() {"href", "title"}.Contains(x.Key)))),
+                new ArraySpec(JsonValue.Create(0))
+            ])
         },
 
         // An emphasis mark. Rendered as an `<em>` element. Has parse rules
@@ -141,9 +164,18 @@ public static class BasicSchema {
             //     new() {style = "font-style=italic"},
             //     new() {style = "font-style=normal", clearMark = m => m.type.name == "em"}
             // ],
-            // toDOM() new() { return emDOM }
+            ToDom = (Mark mark, bool inline) => new DomOutputSpec([
+                new ("em"),
+                new ArraySpec(JsonValue.Create(0))
+            ])
         },
-
+        ["italic"] = new() {
+            ToDom = (Mark mark, bool inline) => new DomOutputSpec([
+                new ("em"),
+                new ArraySpec(JsonValue.Create(0))
+            ])
+        },
+        
         // A strong mark. Rendered as `<strong>`, parse rules also match
         // `<b>` and `font-weight = bold`.
         ["strong"] = new() {
@@ -156,13 +188,26 @@ public static class BasicSchema {
             //     new() {style = "font-weight=400", clearMark = m => m.type.name == "strong"},
             //     new() {style = "font-weight", getAttrs = (value = string) => /^(bold(er)?|[5-9]\dnew() {2,})$/.test(value) && null},
             // ],
-            // toDOM() new() { return strongDOM }
+            ToDom = (Mark mark, bool inline) => new DomOutputSpec([
+                new ("strong"),
+                new ArraySpec(JsonValue.Create(0))
+            ])
+        },
+        
+        ["bold"] = new() {
+            ToDom = (Mark mark, bool inline) => new DomOutputSpec([
+                new ("strong"),
+                new ArraySpec(JsonValue.Create(0))
+            ])
         },
 
         // Code font mark. Represented as a `<code>` element.
         ["code"] = new() {
             // parseDOM = [new() {tag = "code"}],
-            // toDOM() new() { return codeDOM }
+            ToDom = (Mark mark, bool inline) => new DomOutputSpec([
+                new ("code"),
+                new ArraySpec(JsonValue.Create(0))
+            ])
         }
     };
 

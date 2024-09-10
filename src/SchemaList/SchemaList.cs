@@ -1,5 +1,7 @@
+using System.Text.Json.Nodes;
 using StepWise.Prose.Collections;
 using StepWise.Prose.Model;
+using StepWise.ProseMirror.Model;
 
 
 namespace StepWise.Prose.SchemaList;
@@ -23,14 +25,26 @@ public static class ListSchema {
                 Attrs = new() {["order"] = new() {Default = new(1)}},
                 Content = "list_item+",
                 Group = listGroup,
+                ToDom = (node) => new DomOutputSpec([
+                    new("ol"),
+                    new ArraySpec(JsonValue.Create(0))
+                ])
             },
             ["bullet_list"] = new() {
                 Content = "list_item+",
-                Group = listGroup
+                Group = listGroup,
+                ToDom = (node) => new DomOutputSpec([
+                    new("ul"),
+                    new ArraySpec(JsonValue.Create(0))
+                ])
             },
             ["list_item"] = new() {
                 Content = itemContent,
-                Defining = true
+                Defining = true,
+                ToDom = (node) => new DomOutputSpec([
+                    new("li"),
+                    new ArraySpec(JsonValue.Create(0))
+                ])
             }
         };
     }

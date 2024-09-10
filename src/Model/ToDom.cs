@@ -1,11 +1,6 @@
-using System.Collections;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using DotNext.Collections.Generic;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using HtmlAgilityPack;
-using Json.More;
 using StepWise.Prose.Collections;
 using StepWise.Prose.Model;
 
@@ -395,33 +390,20 @@ public class ArraySpec
 {
     public string? TagName { get; set; }
     public JsonNode? Attributes { get; set; }
-    public DomOutputSpec Child { get; set; }
-}
+    public DomOutputSpec? Child { get; set; }
 
-// public class ArraySpec
-// {
-//     public string? TagName { get; set; }
-//     public KeyValuePair<string, JsonNode?>? Attribute { get; set; }
-//     public DomOutputSpec? DomOutputSpec { get; set; }
-//     public bool? Hole { get; set; }
-//
-//     public ArraySpec(string value)
-//     {
-//         TagName = value;
-//     }
-//
-//     public ArraySpec(KeyValuePair<string, JsonNode?> attr)
-//     {
-//         Attribute = attr;
-//     }
-//
-//     public ArraySpec(DomOutputSpec value)
-//     {
-//         DomOutputSpec = value;
-//     }
-//
-//     public ArraySpec(bool hole)
-//     {
-//         Hole = hole;
-//     }
-// }
+    public ArraySpec(string tagName)
+    {
+        TagName = tagName;
+    }
+    
+    public ArraySpec(JsonNode attributes)
+    {
+        Attributes = attributes;
+    }
+    
+    public ArraySpec(DomOutputSpec child)
+    {
+        Child = child;
+    }
+}
