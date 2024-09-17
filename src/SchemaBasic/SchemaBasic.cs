@@ -27,7 +27,7 @@ public static class BasicSchema {
             // ParseDOM = [ new() {tag = "p"}],
             ToDom = (Node node) => new DomOutputSpec([
                 new ("p"),
-                new ArraySpec(JsonValue.Create(0))
+                new ElementSpec(JsonValue.Create(0))
             ])
         },
 
@@ -39,7 +39,7 @@ public static class BasicSchema {
             // ParseDOM = [ new() {tag = "blockquote"}],
             ToDom = (Node node) => new DomOutputSpec([
                 new("blockquote"),
-                new ArraySpec(JsonValue.Create(0))
+                new ElementSpec(JsonValue.Create(0))
             ])
         },
 
@@ -68,7 +68,7 @@ public static class BasicSchema {
             
             ToDom = (Node node) => new DomOutputSpec([
                 new( "h" + node.Attrs.GetValueOrDefault("level") ),
-                new ArraySpec( JsonValue.Create(0) )
+                new ElementSpec( JsonValue.Create(0) )
             ])
         },
 
@@ -84,9 +84,9 @@ public static class BasicSchema {
             // ParseDOM = [ new() {tag = "pre", preserveWhitespace = "full"}],
             ToDom = (Node node) => new DomOutputSpec([
                 new( "pre" ),
-                new ArraySpec( new DomOutputSpec([
+                new ElementSpec( new DomOutputSpec([
                     new("code"),
-                    new ArraySpec( JsonValue.Create(0) )])
+                    new ElementSpec( JsonValue.Create(0) )])
                 )
             ])
         },
@@ -118,7 +118,7 @@ public static class BasicSchema {
             // toDOM(node)  new() { let  new() {src, alt, title} = node.attrs; return ["img",  new() {src, alt, title}] }
             ToDom = (Node node) => new DomOutputSpec([
                 new ("img"),
-                new ArraySpec(new JsonObject(node.Attrs.Where(x => new List<string>() {"src", "alt", "title"}.Contains(x.Key)))),
+                new ElementSpec(new JsonObject(node.Attrs.Where(x => new List<string>() {"src", "alt", "title"}.Contains(x.Key)))),
             ])
         },
 
@@ -151,8 +151,8 @@ public static class BasicSchema {
             // toDOM(node) new() { let new() {href, title} = node.attrs; return ["a", new() {href, title}, 0] }
             ToDom = (mark, inline) => new DomOutputSpec([
                 new ("a"),
-                new ArraySpec(new JsonObject(mark.Attrs.Where(x => new List<string>() {"href", "title"}.Contains(x.Key)))),
-                new ArraySpec(JsonValue.Create(0))
+                new ElementSpec(new JsonObject(mark.Attrs.Where(x => new List<string>() {"href", "title"}.Contains(x.Key)))),
+                new ElementSpec(JsonValue.Create(0))
             ])
         },
 
@@ -166,13 +166,13 @@ public static class BasicSchema {
             // ],
             ToDom = (Mark mark, bool inline) => new DomOutputSpec([
                 new ("em"),
-                new ArraySpec(JsonValue.Create(0))
+                new ElementSpec(JsonValue.Create(0))
             ])
         },
         ["italic"] = new() {
             ToDom = (Mark mark, bool inline) => new DomOutputSpec([
                 new ("em"),
-                new ArraySpec(JsonValue.Create(0))
+                new ElementSpec(JsonValue.Create(0))
             ])
         },
         
@@ -190,14 +190,14 @@ public static class BasicSchema {
             // ],
             ToDom = (Mark mark, bool inline) => new DomOutputSpec([
                 new ("strong"),
-                new ArraySpec(JsonValue.Create(0))
+                new ElementSpec(JsonValue.Create(0))
             ])
         },
         
         ["bold"] = new() {
             ToDom = (Mark mark, bool inline) => new DomOutputSpec([
                 new ("strong"),
-                new ArraySpec(JsonValue.Create(0))
+                new ElementSpec(JsonValue.Create(0))
             ])
         },
 
@@ -206,7 +206,7 @@ public static class BasicSchema {
             // parseDOM = [new() {tag = "code"}],
             ToDom = (Mark mark, bool inline) => new DomOutputSpec([
                 new ("code"),
-                new ArraySpec(JsonValue.Create(0))
+                new ElementSpec(JsonValue.Create(0))
             ])
         }
     };

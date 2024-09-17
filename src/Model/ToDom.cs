@@ -138,12 +138,6 @@ public class DomSerializer
         return Utils.RenderSpec(doc, structure, blockArraysIn);
     }
 
-    public static DomSerializer FromSchema(Schema schema)
-    {
-        return new DomSerializer(schema);
-        // return new DomSerializer(NodesFromSchema(schema), MarksFromSchema(schema));
-    }
-
     static Dictionary<string, Func<Node, DomOutputSpec>> NodesFromSchema(Schema schema)
     {
         Dictionary<string, Func<Node, DomOutputSpec>> result = Utils.GatherToDom(schema.Nodes);
@@ -206,9 +200,9 @@ public static class Utils
 
     public static DomContent RenderSpec(HtmlDocument doc, DomOutputSpec structure, Attrs? blockArraysIn)
     {
-        if (!string.IsNullOrEmpty(structure.StringValue))
+        if (!string.IsNullOrEmpty(structure.Text))
         {
-            return new DomContent(doc.CreateTextNode(structure.StringValue));
+            return new DomContent(doc.CreateTextNode(structure.Text));
         }
 
         if (structure.DomNode is { NodeType: HtmlNodeType.Element })
@@ -221,17 +215,18 @@ public static class Utils
             return structure.DomContent;
         }
 
-        if (structure.ArrayValue is null)
+        if (structure.ElementArray is null)
         {
             throw new Exception("Invalid `structure` argument");
         }
 
         string tagName = structure.GetFirstArrayValue();
 
-        var suspicious = SuspiciousAttributes(blockArraysIn);
+        List<JsonNode>? suspicious = SuspiciousAttributes(blockArraysIn);
+        
         if (blockArraysIn is not null &&
             suspicious is not null &&
-            suspicious.Any(sus => structure.ArrayValue.Any(str => str.Attributes == sus)))
+            suspicious.Any(sus => structure.ElementArray.Any(str => str.Attributes == sus)))
         {
             throw new Exception("Using an array from an attribute object as a DOM spec. This may be an attempted cross site scripting attack.");
         }
@@ -248,7 +243,7 @@ public static class Utils
 
         int start = 1;
         
-        JsonNode? attrs = structure.ArrayValue[1].Attributes;
+        JsonNode? attrs = structure.ElementArray[1].Attributes;
 
         if (attrs is not null && attrs.GetValueKind() == JsonValueKind.Object && attrs["nodeType"] is null)
         {
@@ -267,13 +262,13 @@ public static class Utils
             }
         }
 
-        for (int i = start; i < structure.ArrayValue.Count; i++)
+        for (int i = start; i < structure.ElementArray.Count; i++)
         {
-            JsonNode? child = structure.ArrayValue[i].Attributes;
+            JsonNode? child = structure.ElementArray[i].Attributes;
 
             if (child is not null && child.AsValue().TryGetValue(out int val) && val == 0)
             {
-                if (i < structure.ArrayValue.Count - 1 || i > start)
+                if (i < structure.ElementArray.Count - 1 || i > start)
                 {
                     throw new Exception("Content hole must be the only child of its parent node");
                 }
@@ -281,12 +276,12 @@ public static class Utils
                 return new DomContent(dom, dom);
             }
 
-            if (structure.ArrayValue[i].Child is null)
+            if (structure.ElementArray[i].Child is null)
             {
                 throw new Exception("Error with array value");
             }
 
-            DomContent inner = RenderSpec(doc, structure.ArrayValue[i].Child, blockArraysIn);
+            DomContent inner = RenderSpec(doc, structure.ElementArray[i].Child!, blockArraysIn);
 
             dom.AppendChild(inner.Dom);
 
@@ -349,19 +344,19 @@ public static class Utils
 
 public class DomOutputSpec
 {
-    public string? StringValue { get; set; }
-    public List<ArraySpec>? ArrayValue { get; set; }
+    public string? Text { get; set; }
+    public List<ElementSpec>? ElementArray { get; set; }
     public HtmlNode? DomNode { get; set; }
     public DomContent? DomContent { get; set; }
 
     public DomOutputSpec(string value)
     {
-        StringValue = value;
+        Text = value;
     }
 
-    public DomOutputSpec(List<ArraySpec> array)
+    public DomOutputSpec(List<ElementSpec> elementArray)
     {
-        ArrayValue = array;
+        ElementArray = elementArray;
     }
 
     public DomOutputSpec(HtmlNode domNode)
@@ -376,7 +371,7 @@ public class DomOutputSpec
 
     public string GetFirstArrayValue()
     {
-        return (ArrayValue ?? throw new InvalidOperationException("Invalid array")).First().TagName ?? throw new InvalidOperationException("Invalid array, first entry is not a string");
+        return (ElementArray ?? throw new InvalidOperationException("Invalid array")).First().TagName ?? throw new InvalidOperationException("Invalid array, first entry is not a string");
     }
 }
 
@@ -386,23 +381,23 @@ public class DomContent(HtmlNode dom, HtmlNode? content = null)
     public HtmlNode? Content = content;
 }
 
-public class ArraySpec
+public class ElementSpec
 {
     public string? TagName { get; set; }
     public JsonNode? Attributes { get; set; }
     public DomOutputSpec? Child { get; set; }
 
-    public ArraySpec(string tagName)
+    public ElementSpec(string tagName)
     {
         TagName = tagName;
     }
     
-    public ArraySpec(JsonNode attributes)
+    public ElementSpec(JsonNode attributes)
     {
         Attributes = attributes;
     }
     
-    public ArraySpec(DomOutputSpec child)
+    public ElementSpec(DomOutputSpec child)
     {
         Child = child;
     }

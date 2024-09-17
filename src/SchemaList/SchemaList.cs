@@ -27,7 +27,7 @@ public static class ListSchema {
                 Group = listGroup,
                 ToDom = (node) => new DomOutputSpec([
                     new("ol"),
-                    new ArraySpec(JsonValue.Create(0))
+                    new ElementSpec(JsonValue.Create(0))
                 ])
             },
             ["bullet_list"] = new() {
@@ -35,7 +35,7 @@ public static class ListSchema {
                 Group = listGroup,
                 ToDom = (node) => new DomOutputSpec([
                     new("ul"),
-                    new ArraySpec(JsonValue.Create(0))
+                    new ElementSpec(JsonValue.Create(0))
                 ])
             },
             ["list_item"] = new() {
@@ -43,7 +43,7 @@ public static class ListSchema {
                 Defining = true,
                 ToDom = (node) => new DomOutputSpec([
                     new("li"),
-                    new ArraySpec(JsonValue.Create(0))
+                    new ElementSpec(JsonValue.Create(0))
                 ])
             }
         };
