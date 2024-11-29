@@ -47,7 +47,9 @@ public static class BasicSchema {
         ["horizontal_rule"] =  new() {
             Group = "block",
             // ParseDOM = [ new() {tag = "hr"}],
-            ToDom = (Node node) => new DomOutputSpec("hr")
+            ToDom = (Node node) => new DomOutputSpec([
+                new ElementSpec("hr")
+            ])
         },
 
         // A heading textblock, with a `level` attribute that
@@ -104,7 +106,9 @@ public static class BasicSchema {
             Attrs =  new() {
                 ["src"] =  new() {},
                 ["alt"] =  new() {Default = null},
-                ["title"] =  new() {Default = null}
+                ["title"] =  new() {Default = null},
+                ["width"] = new() { Default = null },
+                ["height"] = new() { Default = null }
             },
             Group = "inline",
             Draggable = true,
@@ -118,7 +122,7 @@ public static class BasicSchema {
             // toDOM(node)  new() { let  new() {src, alt, title} = node.attrs; return ["img",  new() {src, alt, title}] }
             ToDom = (Node node) => new DomOutputSpec([
                 new ("img"),
-                new ElementSpec(new JsonObject(node.Attrs.Where(x => new List<string>() {"src", "alt", "title"}.Contains(x.Key)))),
+                new ElementSpec(new JsonObject(node.Attrs.Where(x => new List<string>() {"src", "alt", "title", "width", "height"}.Contains(x.Key)))),
             ])
         },
 
@@ -128,7 +132,9 @@ public static class BasicSchema {
             Group = "inline",
             Selectable = false,
             // ParseDOM = [ new() {tag = "br"}],
-            ToDom = (Node node) => new DomOutputSpec("br")
+            ToDom = (Node node) => new DomOutputSpec([
+                new ElementSpec("br")
+            ])
         }
     };
 
@@ -142,6 +148,8 @@ public static class BasicSchema {
         ["link"] = new() {
             Attrs = new() {
                 ["href"] = new() {},
+                ["target"] = new() { Default = null },
+                ["rel"] = new() { Default = null },
                 ["title"] = new() {Default = null}
             },
             Inclusive = false,
@@ -151,7 +159,7 @@ public static class BasicSchema {
             // toDOM(node) new() { let new() {href, title} = node.attrs; return ["a", new() {href, title}, 0] }
             ToDom = (mark, inline) => new DomOutputSpec([
                 new ("a"),
-                new ElementSpec(new JsonObject(mark.Attrs.Where(x => new List<string>() {"href", "title"}.Contains(x.Key)))),
+                new ElementSpec(new JsonObject(mark.Attrs.Where(x => new List<string>() {"href", "target", "rel", "title"}.Contains(x.Key)))),
                 new ElementSpec(JsonValue.Create(0))
             ])
         },

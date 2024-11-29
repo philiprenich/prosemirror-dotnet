@@ -243,7 +243,7 @@ public static class Utils
 
         int start = 1;
         
-        JsonNode? attrs = structure.ElementArray[1].Attributes;
+        JsonNode? attrs = structure.ElementArray.Count > 1 ? structure.ElementArray[1].Attributes : null;
 
         if (attrs is not null && attrs.GetValueKind() == JsonValueKind.Object && attrs["nodeType"] is null)
         {
@@ -258,6 +258,11 @@ public static class Utils
                     throw new Exception("Attribute names cannot have a space in them and XML Namespaces are not supported outside of a browser context.");
                 }
 
+                if (attribute.Key != "alt" && attribute.Value?.AsValue() == null)
+                {
+                    continue;
+                }
+                
                 dom.SetAttributeValue(attribute.Key, (attribute.Value?.AsValue().ToString()) ?? "");
             }
         }
